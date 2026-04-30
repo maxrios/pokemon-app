@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.env
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.next/
+.DS_Store
+*.tsbuildinfo
+
+# Memex (per-developer state)
+.memex/state.json
