@@ -144,11 +144,6 @@ export default function BattlePage() {
 
   return (
     <main className="min-h-screen bg-pc-bg text-white">
-      <div className="flex items-center justify-between px-4 py-3">
-        <Link className="text-sm text-white/50 hover:text-white" href="/battles">
-          ← Battle History
-        </Link>
-      </div>
 
       {/* Arena */}
       <div className="flex items-end justify-center gap-6 px-6 py-4">
