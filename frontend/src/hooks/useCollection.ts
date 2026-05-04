@@ -32,8 +32,9 @@ export function useCollection(userId: null | string): {
   const catchPokemon = useCallback(
     async (pokemonId: number) => {
       if (!userId) return
-      await apiPost(`/users/${userId}/collection`, { pokemon_id: pokemonId })
+      const entry = await apiPost<CollectionEntry>(`/users/${userId}/collection`, { pokemon_id: pokemonId })
       setOwnedIds(prev => new Set([pokemonId, ...prev]))
+      setOwnedMongoIds(prev => new Map([...prev, [pokemonId, entry.pokemon.id]]))
     },
     [userId]
   )
@@ -44,6 +45,11 @@ export function useCollection(userId: null | string): {
       await apiDelete(`/users/${userId}/collection/${pokemonId}`)
       setOwnedIds(prev => {
         const next = new Set(prev)
+        next.delete(pokemonId)
+        return next
+      })
+      setOwnedMongoIds(prev => {
+        const next = new Map(prev)
         next.delete(pokemonId)
         return next
       })
