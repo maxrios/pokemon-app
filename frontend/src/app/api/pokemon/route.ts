@@ -2,7 +2,8 @@ import type { NextRequest } from 'next/server'
 
 import { NextResponse } from 'next/server'
 
-import { apiGet } from '@/lib/api'
+const BACKEND_URL =
+  process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
 type BackendPokemon = {
   attack: number
@@ -29,7 +30,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') ?? '20')
     const search = searchParams.get('search') ?? ''
 
-    const raw = await apiGet<BackendPokemon[]>('/pokemon')
+    const res = await fetch(`${BACKEND_URL}/pokemon`)
+    if (!res.ok) throw new Error(`Backend returned ${res.status}`)
+    const raw = (await res.json()) as BackendPokemon[]
     let pokemon = raw.map(toPokemon)
 
     if (search) {
