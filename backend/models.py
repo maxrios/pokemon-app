@@ -1,11 +1,12 @@
 from mongoengine import (
+    BooleanField,
+    DateTimeField,
     Document,
-    StringField,
-    IntField,
     FloatField,
+    IntField,
     ListField,
     ReferenceField,
-    DateTimeField,
+    StringField,
 )
 from datetime import datetime, timezone
 
@@ -51,5 +52,39 @@ class Ownership(Document):
         "collection": "ownership",
         "indexes": [
             {"fields": ["user", "pokemon"], "unique": True},
+        ],
+    }
+
+
+class BattleHistory(Document):
+    pokemon_one = ReferenceField(Pokemon, required=True)
+    pokemon_two = ReferenceField(Pokemon, required=True)
+    winner = ReferenceField(Pokemon, default=None)
+    status = StringField(
+        required=True,
+        choices=["pending", "in_progress", "completed", "failed"],
+        default="pending",
+    )
+    started_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+    ended_at = DateTimeField(default=None)
+
+    meta = {
+        "collection": "battle_history",
+        "indexes": ["-started_at"],
+    }
+
+
+class BattleTurn(Document):
+    battle = ReferenceField(BattleHistory, required=True)
+    turn_number = IntField(required=True)
+    first_attacker = ReferenceField(Pokemon, required=True)
+    damage_to_pokemon_one = IntField(required=True)
+    damage_to_pokemon_two = IntField(required=True)
+    battle_over = BooleanField(default=False)
+
+    meta = {
+        "collection": "battle_turns",
+        "indexes": [
+            {"fields": ["battle", "turn_number"], "unique": True},
         ],
     }

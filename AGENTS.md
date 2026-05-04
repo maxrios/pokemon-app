@@ -91,7 +91,7 @@ This project tracks its own development using `memex`. Follow this pattern for e
 
 6. **Resolve or abandon** - Run `black . --check`, `ruff check .`, and `pytest` locally; all three must pass. Then `memex node resolve` when the work is complete. If the task is superseded or turns out to be the wrong approach, use `memex node abandon` with a note in the summary explaining why.
 
-7. **Commit** - Commit source changes and `.memex/graph.json` + `.memex/nodes/` together — they describe the same unit of work. Never commit `.memex/state.json`: it's per-developer working-node state and will create merge conflicts. Documentation updates (AGENTS.md, README.md) go in a separate commit so the source diff and doc diff are independently reviewable.
+7. **Commit** - Commit source changes and `.memex/nodes/` together — they describe the same unit of work. Never commit `.memex/state.json`: it's per-developer working-node state and will create merge conflicts. Documentation updates (AGENTS.md, README.md) go in a separate commit so the source diff and doc diff are independently reviewable.
 
 8. **Push** and open a PR.
 
