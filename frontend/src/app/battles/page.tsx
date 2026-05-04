@@ -34,10 +34,31 @@ export default function BattlesPage() {
       )}
 
       {battles.length > 0 && (
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {battles.map(battle => (
-            <BattleCard battle={battle} key={battle.battle_id} />
-          ))}
+        <div className="overflow-hidden rounded-lg border border-pc-border bg-pc-card">
+          <table className="w-full">
+            <thead className="hidden md:table-header-group">
+              <tr className="border-b border-pc-border">
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white/40">
+                  Pokémon 1
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white/40">
+                  Battle
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white/40">
+                  Pokémon 2
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white/40">
+                  Date
+                </th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {battles.map(battle => (
+                <BattleCard battle={battle} key={battle.battle_id} />
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </main>

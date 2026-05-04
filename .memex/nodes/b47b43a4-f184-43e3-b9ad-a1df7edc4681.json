@@ -1,0 +1,24 @@
+{
+  "id": "b47b43a4-f184-43e3-b9ad-a1df7edc4681",
+  "parent_ids": [
+    "29bfa0b6-f0d9-470c-879a-81ab2415400c"
+  ],
+  "git_ref": "feat/battle-history-table (fdb918aa)",
+  "created_at": "2026-05-04T22:14:32.476950Z",
+  "updated_at": "2026-05-04T22:15:47.161278Z",
+  "summary": {
+    "goal": "Redesign battle history as a table view with pokemon photos, fancy vs title, timestamp, and watch button per row",
+    "decisions": [
+      "replaced horizontal scroll + card layout with a full-width table; each row has right-aligned p1 slot | centered name vs name title | left-aligned p2 slot | timestamp | Watch Battle button"
+    ],
+    "rejected_approaches": [],
+    "open_threads": [],
+    "key_artifacts": [
+      "frontend/src/app/battles/page.tsx",
+      "frontend/src/components/BattleCard.tsx"
+    ]
+  },
+  "raw_transcript_ref": null,
+  "tags": [],
+  "status": "Resolved"
+}
