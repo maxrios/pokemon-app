@@ -6,6 +6,7 @@ import { type ChangeEvent, useCallback, useEffect, useRef, useState } from 'reac
 import type { Pokemon } from '@/types/pokemon'
 
 import { usePokemon } from '@/hooks/usePokemon'
+import { useUser } from '@/hooks/useUser'
 
 import { PokemonCard } from './PokemonCard'
 import { PokemonDialog } from './PokemonDialog'
@@ -21,6 +22,7 @@ export default function PokemonGrid() {
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   const { hasNext, isLoading, loadMore, pokemon } = usePokemon(debouncedSearch)
+  useUser()
 
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
