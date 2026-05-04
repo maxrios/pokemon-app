@@ -1,3 +1,5 @@
+import type { BattleSummary } from '@/types/pokemon'
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
 export async function apiDelete(path: string): Promise<void> {
@@ -19,4 +21,8 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   })
   if (!res.ok) throw new Error(`API error: ${res.status}`)
   return res.json() as Promise<T>
+}
+
+export async function getBattles(limit = 50): Promise<BattleSummary[]> {
+  return apiGet<BattleSummary[]>(`/battles?limit=${limit}`)
 }
