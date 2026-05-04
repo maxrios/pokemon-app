@@ -8,13 +8,14 @@ import { getTypeColor } from '@/lib/pokemon'
 
 type PokemonCardProps = {
   onClick: () => void
+  owned: boolean
   pokemon: Pokemon
 }
 
-export function PokemonCard({ onClick, pokemon }: PokemonCardProps) {
+export function PokemonCard({ onClick, owned, pokemon }: PokemonCardProps) {
   return (
     <div
-      className="relative aspect-[3/4] cursor-pointer overflow-hidden rounded-lg border border-pc-border bg-pc-card transition hover:scale-[1.02] hover:border-[--pc-accent]"
+      className={`relative aspect-[3/4] cursor-pointer overflow-hidden rounded-lg border border-pc-border bg-pc-card transition hover:scale-[1.02] hover:border-[--pc-accent] ${!owned ? 'opacity-50 grayscale' : ''}`}
       onClick={onClick}
     >
       <Image

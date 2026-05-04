@@ -8,12 +8,15 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { getTypeColor } from '@/lib/pokemon'
 
 type PokemonDialogProps = {
+  onCatch: () => void
   onClose: () => void
+  onRelease: () => void
   open: boolean
+  owned: boolean
   pokemon: null | Pokemon
 }
 
-export function PokemonDialog({ onClose, open, pokemon }: PokemonDialogProps) {
+export function PokemonDialog({ onCatch, onClose, onRelease, open, owned, pokemon }: PokemonDialogProps) {
   return (
     <Dialog onOpenChange={(isOpen) => { if (!isOpen) onClose() }} open={open}>
       <DialogContent className="gap-0 overflow-hidden border-pc-border bg-pc-card p-0 text-white sm:max-w-md">
@@ -73,6 +76,13 @@ export function PokemonDialog({ onClose, open, pokemon }: PokemonDialogProps) {
                 <span>Weight: {pokemon.weight}</span>
               </div>
               <p className="mt-2 text-sm italic text-white/60">{pokemon.description}</p>
+              <button
+                className={`mt-4 w-full rounded px-4 py-2 text-sm font-semibold transition ${owned ? 'bg-red-600 hover:bg-red-700' : 'bg-pc-accent hover:opacity-90'}`}
+                onClick={owned ? onRelease : onCatch}
+                type="button"
+              >
+                {owned ? 'Release' : 'Catch'}
+              </button>
             </div>
           </>
         )}

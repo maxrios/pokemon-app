@@ -5,6 +5,7 @@ import { type ChangeEvent, useCallback, useEffect, useRef, useState } from 'reac
 
 import type { Pokemon } from '@/types/pokemon'
 
+import { useCollection } from '@/hooks/useCollection'
 import { usePokemon } from '@/hooks/usePokemon'
 import { useUser } from '@/hooks/useUser'
 
@@ -22,7 +23,8 @@ export default function PokemonGrid() {
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   const { hasNext, isLoading, loadMore, pokemon } = usePokemon(debouncedSearch)
-  useUser()
+  const { userId } = useUser()
+  const { catchPokemon, ownedIds, releasePokemon } = useCollection(userId)
 
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -84,7 +86,7 @@ export default function PokemonGrid() {
               />
             ))
           : pokemon.map(p => (
-              <PokemonCard key={p.id} onClick={() => setSelectedPokemon(p)} pokemon={p} />
+              <PokemonCard key={p.id} onClick={() => setSelectedPokemon(p)} owned={ownedIds.has(p.id)} pokemon={p} />
             ))}
       </div>
 
@@ -101,8 +103,11 @@ export default function PokemonGrid() {
       <div ref={sentinelRef} />
 
       <PokemonDialog
+        onCatch={() => selectedPokemon && catchPokemon(selectedPokemon.id)}
         onClose={() => setSelectedPokemon(null)}
+        onRelease={() => selectedPokemon && releasePokemon(selectedPokemon.id)}
         open={!!selectedPokemon}
+        owned={selectedPokemon ? ownedIds.has(selectedPokemon.id) : false}
         pokemon={selectedPokemon}
       />
     </div>
