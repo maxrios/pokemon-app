@@ -156,7 +156,7 @@ async def run_battle_worker() -> None:
             if redis:
                 raw = redis.lindex(BATTLE_QUEUE_KEY, 0)
                 if raw:
-                    await asyncio.to_thread(_process_battle, raw.decode())
+                    await asyncio.to_thread(_process_battle, raw)
         except Exception:
             logger.exception("Battle worker error")
         await asyncio.sleep(POLL_INTERVAL_SECONDS)
