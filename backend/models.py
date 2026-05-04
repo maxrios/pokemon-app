@@ -57,6 +57,7 @@ class Ownership(Document):
 
 
 class BattleHistory(Document):
+    trainer = ReferenceField("User", required=True)
     pokemon_one = ReferenceField(Pokemon, required=True)
     pokemon_two = ReferenceField(Pokemon, required=True)
     winner = ReferenceField(Pokemon, default=None)
