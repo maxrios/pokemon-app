@@ -1,12 +1,10 @@
 import asyncio
-import json
 import logging
 from contextlib import asynccontextmanager
 from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
 from mongoengine.errors import NotUniqueError
 from pydantic import BaseModel
 
@@ -383,48 +381,6 @@ async def get_battle(battle_id: str):
         for t in BattleTurn.objects(battle=battle).order_by("turn_number")
     ]
     return BattleDetail(**_battle_summary(battle).model_dump(), turns=turns)
-
-
-@app.get("/battles/{battle_id}/stream")
-async def stream_battle(battle_id: str):
-    async def event_generator():
-        # Wait for the battle to finish computing (up to 60 s)
-        deadline = asyncio.get_event_loop().time() + 60
-        while True:
-            battle = BattleHistory.objects(id=battle_id).first()
-            if not battle:
-                yield f"event: error\ndata: {json.dumps({'detail': 'Battle not found'})}\n\n"
-                return
-            if battle.status == "completed":
-                break
-            if asyncio.get_event_loop().time() > deadline:
-                yield f"event: error\ndata: {json.dumps({'detail': 'Battle timed out'})}\n\n"
-                return
-            try:
-                await asyncio.sleep(0.5)
-            except asyncio.CancelledError:
-                return
-
-        turns = BattleTurn.objects(battle=battle).order_by("turn_number")
-        for turn in turns:
-            data = json.dumps(
-                {
-                    "turn_number": turn.turn_number,
-                    "first_attacker_id": str(turn.first_attacker.id),
-                    "damage_to_pokemon_one": turn.damage_to_pokemon_one,
-                    "damage_to_pokemon_two": turn.damage_to_pokemon_two,
-                    "battle_over": turn.battle_over,
-                }
-            )
-            try:
-                yield f"data: {data}\n\n"
-                await asyncio.sleep(1.5)
-            except asyncio.CancelledError:
-                return
-
-        yield "event: done\ndata: {}\n\n"
-
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 # =============================================================================
