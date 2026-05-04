@@ -8,6 +8,18 @@ export type BattlePokemon = {
   speed: number
 }
 
+export type BattleTurn = {
+  turn_number: number
+  first_attacker_id: string
+  damage_to_pokemon_one: number
+  damage_to_pokemon_two: number
+  battle_over: boolean
+}
+
+export type BattleDetail = BattleSummary & {
+  turns: BattleTurn[]
+}
+
 export type BattleSummary = {
   battle_id: string
   trainer_id: string

@@ -1,4 +1,4 @@
-import type { BattleSummary } from '@/types/pokemon'
+import type { BattleDetail, BattleSummary } from '@/types/pokemon'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
@@ -21,6 +21,10 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   })
   if (!res.ok) throw new Error(`API error: ${res.status}`)
   return res.json() as Promise<T>
+}
+
+export async function getBattle(battleId: string): Promise<BattleDetail> {
+  return apiGet<BattleDetail>(`/battles/${battleId}`)
 }
 
 export async function getBattles(limit = 50): Promise<BattleSummary[]> {

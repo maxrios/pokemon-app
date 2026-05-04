@@ -1,0 +1,24 @@
+{
+  "id": "6888e284-d0dc-41dc-86dd-45067b331a6d",
+  "parent_ids": [
+    "006953f9-d411-4e68-b2c2-3eb3db5488cf"
+  ],
+  "git_ref": "feat/battle-simulation-view (1f3cd9f4)",
+  "created_at": "2026-05-04T22:03:45.483335Z",
+  "updated_at": "2026-05-04T22:05:40.106597Z",
+  "summary": {
+    "goal": "Add battle simulation view at /battles/[id] with animated HP bars and turn-by-turn playback (closes #17)",
+    "decisions": [
+      "polls GET /battles/{id} until status=completed before starting animation — battle computes in milliseconds so this is almost always instant, but covers the race condition when the user is navigated here immediately after POST /battles",
+      "HP bars use CSS transition for smooth animation between turns — simpler than a JS animation loop and sufficient for 1.5s pacing"
+    ],
+    "rejected_approaches": [],
+    "open_threads": [],
+    "key_artifacts": [
+      "frontend/src/app/battles/[battle_id]/page.tsx"
+    ]
+  },
+  "raw_transcript_ref": null,
+  "tags": [],
+  "status": "Resolved"
+}
