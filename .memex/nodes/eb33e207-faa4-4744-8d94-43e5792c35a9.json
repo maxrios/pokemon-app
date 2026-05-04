@@ -1,0 +1,24 @@
+{
+  "id": "eb33e207-faa4-4744-8d94-43e5792c35a9",
+  "parent_ids": [
+    "1c861825-b36d-403c-932e-5846d9542af2"
+  ],
+  "git_ref": "feat/frontend-api-migration (532c54f4)",
+  "created_at": "2026-05-04T20:12:37.969709Z",
+  "updated_at": "2026-05-04T20:17:50.001429Z",
+  "summary": {
+    "goal": "Migrate frontend pokedex from pokemon.json to backend API, persist user_id in localStorage (issue #4)",
+    "decisions": [
+      "Kept the Next.js route as a BFF layer that fetches all pokemon from the backend and paginates/filters in-memory — avoids adding server-side search to the FastAPI layer for now, preserves the existing usePokemon hook contract unchanged"
+    ],
+    "rejected_approaches": [],
+    "open_threads": [],
+    "key_artifacts": [
+      "frontend/src/app/api/pokemon/route.ts",
+      "frontend/src/hooks/useUser.ts"
+    ]
+  },
+  "raw_transcript_ref": null,
+  "tags": [],
+  "status": "Resolved"
+}
