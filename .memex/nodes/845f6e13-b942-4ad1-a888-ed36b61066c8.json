@@ -1,0 +1,24 @@
+{
+  "id": "845f6e13-b942-4ad1-a888-ed36b61066c8",
+  "parent_ids": [
+    "529e0488-67f9-421e-a511-0047dc9b33b1"
+  ],
+  "git_ref": "feat/battle-history-sse (1ae0b81e)",
+  "created_at": "2026-05-04T21:31:30.413785Z",
+  "updated_at": "2026-05-04T21:32:52.830473Z",
+  "summary": {
+    "goal": "Add GET /battles, GET /battles/{id}, and GET /battles/{id}/stream SSE endpoints (closes #14)",
+    "decisions": [
+      "BattleDetail extends BattleSummary via inheritance rather than duplicating fields — keeps the two response shapes in sync with no extra code",
+      "SSE stream polls until battle is completed then replays turns with 1.5s delay — battles compute instantly so pacing is entirely client-side; this keeps computation and presentation cleanly separated"
+    ],
+    "rejected_approaches": [],
+    "open_threads": [],
+    "key_artifacts": [
+      "backend/main.py"
+    ]
+  },
+  "raw_transcript_ref": null,
+  "tags": [],
+  "status": "Resolved"
+}
