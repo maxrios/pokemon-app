@@ -1,0 +1,24 @@
+{
+  "id": "519e2bb8-e69b-4f24-b004-7a1cf77c7292",
+  "parent_ids": [
+    "fdba7072-0edd-4864-b4c2-ed524b8938bc"
+  ],
+  "git_ref": "feat/db-battle-collections (f61015f0)",
+  "created_at": "2026-05-04T21:07:03.390383Z",
+  "updated_at": "2026-05-04T21:08:56.721514Z",
+  "summary": {
+    "goal": "Add MongoDB collections for BattleHistory and BattleTurn (closes #11)",
+    "decisions": [
+      "used ReferenceFields for pokemon_one/pokemon_two/winner/first_attacker rather than storing string IDs, consistent with how Ownership references User and Pokemon",
+      "named fields started_at/ended_at to match caught_at convention already in the codebase; turn_number over turn_index because it reads as a count not an array position"
+    ],
+    "rejected_approaches": [],
+    "open_threads": [],
+    "key_artifacts": [
+      "backend/models.py"
+    ]
+  },
+  "raw_transcript_ref": null,
+  "tags": [],
+  "status": "Resolved"
+}
