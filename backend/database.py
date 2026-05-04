@@ -1,3 +1,5 @@
+import json
+import os
 from mongoengine import connect, disconnect
 from settings import Settings
 import logging
@@ -26,8 +28,48 @@ def initialize_database(mongo_bool: bool = True, redis_bool: bool = True):
             logger.error(f"Could not connect to MongoDB: {e}")
             raise
 
+        seed_pokemon()
+
     if redis_bool:
         initialize_redis()
+
+
+def seed_pokemon():
+    """Seed the pokemon collection from pokemon.json if it is empty."""
+    from models import Pokemon
+
+    if Pokemon.objects.count() > 0:
+        return
+
+    seed_path = os.path.join(os.path.dirname(__file__), "data", "pokemon.json")
+    if not os.path.exists(seed_path):
+        logger.warning("pokemon.json not found at %s, skipping seed", seed_path)
+        return
+
+    with open(seed_path) as f:
+        records = json.load(f)
+
+    docs = [
+        Pokemon(
+            pokemon_id=r["id"],
+            name=r["name"],
+            types=r["types"],
+            hp=r["hp"],
+            attack=r["attack"],
+            defense=r["defense"],
+            special_attack=r["specialAttack"],
+            special_defense=r["specialDefense"],
+            speed=r["speed"],
+            description=r.get("description", ""),
+            generation=r.get("generation", 1),
+            height=r.get("height", 0.0),
+            weight=r.get("weight", 0.0),
+            image_url=r.get("imageUrl", ""),
+        )
+        for r in records
+    ]
+    Pokemon.objects.insert(docs)
+    logger.info("Seeded %d pokemon from pokemon.json", len(docs))
 
 
 def initialize_redis() -> Optional[redis.Redis]:
@@ -90,4 +132,3 @@ def close_database_connection():
         except Exception as e:
             logger.error(f"Error disconnecting from Redis: {e}")
         _redis_client = None
-
