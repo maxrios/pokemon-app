@@ -7,16 +7,30 @@ import type { Pokemon } from '@/types/pokemon'
 import { getTypeColor } from '@/lib/pokemon'
 
 type PokemonCardProps = {
+  battleMode?: boolean
   onClick: () => void
   owned: boolean
   pokemon: Pokemon
+  selected?: boolean
 }
 
-export function PokemonCard({ onClick, owned, pokemon }: PokemonCardProps) {
+export function PokemonCard({ battleMode, onClick, owned, pokemon, selected }: PokemonCardProps) {
+  const unselectable = battleMode && !owned
   return (
     <div
-      className={`relative aspect-[3/4] cursor-pointer overflow-hidden rounded-lg border border-pc-border bg-pc-card transition hover:scale-[1.02] hover:border-[--pc-accent] ${!owned ? 'opacity-50 grayscale' : ''}`}
-      onClick={onClick}
+      className={[
+        'relative aspect-[3/4] overflow-hidden rounded-lg border bg-pc-card transition',
+        unselectable
+          ? 'cursor-not-allowed opacity-30 grayscale'
+          : 'cursor-pointer hover:scale-[1.02]',
+        selected
+          ? 'border-yellow-400 ring-2 ring-yellow-400'
+          : 'border-pc-border hover:border-[--pc-accent]',
+        !battleMode && !owned ? 'opacity-50 grayscale' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      onClick={unselectable ? undefined : onClick}
     >
       <Image
         alt={pokemon.name}
