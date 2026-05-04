@@ -1,0 +1,25 @@
+{
+  "id": "c353fbaa-1d67-4481-bffd-03ba0026ceb7",
+  "parent_ids": [
+    "bc9ea80b-627d-4d41-ad55-745d6a8ee768"
+  ],
+  "git_ref": "feat/db-collections (2f12aa20)",
+  "created_at": "2026-05-04T19:52:13.775482Z",
+  "updated_at": "2026-05-04T19:55:50.942384Z",
+  "summary": {
+    "goal": "Add MongoDB collections for Pokemon, User, and Ownership with seeding from pokemon.json (issue #1)",
+    "decisions": [
+      "Used ReferenceField for Ownership relations instead of plain IntField/ObjectIdField — keeps MongoEngine-level integrity and simplifies dereferencing in future query layers"
+    ],
+    "rejected_approaches": [],
+    "open_threads": [],
+    "key_artifacts": [
+      "backend/models.py",
+      "backend/database.py",
+      "backend/data/pokemon.json"
+    ]
+  },
+  "raw_transcript_ref": null,
+  "tags": [],
+  "status": "Resolved"
+}

@@ -1,5 +1,5 @@
 import logging
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from typing import List, Optional
@@ -16,8 +16,10 @@ logger = logging.getLogger(__name__)
 # Pydantic Models (Request/Response schemas)
 # =============================================================================
 
+
 class Pokemon(BaseModel):
     """Pokemon data model."""
+
     id: int
     name: str
     types: List[str]
@@ -26,6 +28,7 @@ class Pokemon(BaseModel):
 
 class CollectionItem(BaseModel):
     """A Pokemon in a user's collection."""
+
     pokemon_id: int
     pokemon_name: str
     added_at: Optional[str] = None
@@ -33,12 +36,14 @@ class CollectionItem(BaseModel):
 
 class BattleRequest(BaseModel):
     """Request to start a battle."""
+
     pokemon1_id: int
     pokemon2_id: int
 
 
 class BattleResult(BaseModel):
     """Result of a battle."""
+
     battle_id: str
     winner_id: int
     winner_name: str
@@ -48,6 +53,7 @@ class BattleResult(BaseModel):
 # =============================================================================
 # Application Setup
 # =============================================================================
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -82,6 +88,7 @@ app.add_middleware(
 # Health Check Endpoints
 # =============================================================================
 
+
 @app.get("/")
 async def root():
     """Health check endpoint."""
@@ -98,12 +105,11 @@ async def health_check():
     }
 
 
-
-
 # =============================================================================
 # Entry Point
 # =============================================================================
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

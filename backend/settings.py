@@ -61,7 +61,6 @@ class Settings:
         self.API_HOST = os.getenv("API_HOST", "0.0.0.0")
         self.API_PORT = int(os.getenv("API_PORT", "8000"))
 
-
     @classmethod
     def instance(cls):
         """Get singleton instance of Settings."""
