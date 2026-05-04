@@ -1,0 +1,23 @@
+{
+  "id": "fdba7072-0edd-4864-b4c2-ed524b8938bc",
+  "parent_ids": [
+    "eb33e207-faa4-4744-8d94-43e5792c35a9"
+  ],
+  "git_ref": "feat/ownership-ui (d70c41ee)",
+  "created_at": "2026-05-04T20:28:03.825003Z",
+  "updated_at": "2026-05-04T20:30:20.659887Z",
+  "summary": {
+    "goal": "Grey out unowned pokemon cards, add catch/release button to detail dialog (issue #5)",
+    "decisions": [
+      "Ownership state lives in a Set<number> of pokemon_id integers — O(1) lookup per card render with no extra per-card API calls"
+    ],
+    "rejected_approaches": [],
+    "open_threads": [],
+    "key_artifacts": [
+      "frontend/src/hooks/useCollection.ts"
+    ]
+  },
+  "raw_transcript_ref": null,
+  "tags": [],
+  "status": "Resolved"
+}
