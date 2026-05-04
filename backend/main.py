@@ -1,15 +1,18 @@
 import asyncio
+import json
 import logging
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from typing import List
-from pydantic import BaseModel
+from typing import List, Optional
+
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from mongoengine.errors import NotUniqueError
+from pydantic import BaseModel
 
 from battle_service import run_battle_worker
 from database import get_redis_client, initialize_database, close_database_connection
-from models import BattleHistory, Ownership
+from models import BattleHistory, BattleTurn, Ownership
 from models import Pokemon as PokemonDoc
 from models import User
 
@@ -64,6 +67,29 @@ class BattleRequest(BaseModel):
 
 class BattleResponse(BaseModel):
     battle_id: str
+
+
+class BattleTurnResponse(BaseModel):
+    turn_number: int
+    first_attacker_id: str
+    damage_to_pokemon_one: int
+    damage_to_pokemon_two: int
+    battle_over: bool
+
+
+class BattleSummary(BaseModel):
+    battle_id: str
+    trainer_id: str
+    status: str
+    started_at: str
+    ended_at: Optional[str]
+    pokemon_one: PokemonResponse
+    pokemon_two: PokemonResponse
+    winner_id: Optional[str]
+
+
+class BattleDetail(BattleSummary):
+    turns: List[BattleTurnResponse]
 
 
 # =============================================================================
@@ -300,6 +326,109 @@ async def initiate_battle(body: BattleRequest):
     redis.rpush(BATTLE_QUEUE_KEY, str(battle.id))
 
     return BattleResponse(battle_id=str(battle.id))
+
+
+def _battle_summary(b: BattleHistory) -> BattleSummary:
+    b.pokemon_one.reload()
+    b.pokemon_two.reload()
+    return BattleSummary(
+        battle_id=str(b.id),
+        trainer_id=str(b.trainer.id),
+        status=b.status,
+        started_at=b.started_at.isoformat(),
+        ended_at=b.ended_at.isoformat() if b.ended_at else None,
+        pokemon_one=_pokemon_response(b.pokemon_one),
+        pokemon_two=_pokemon_response(b.pokemon_two),
+        winner_id=str(b.winner.id) if b.winner else None,
+    )
+
+
+def _turn_response(t: BattleTurn) -> BattleTurnResponse:
+    return BattleTurnResponse(
+        turn_number=t.turn_number,
+        first_attacker_id=str(t.first_attacker.id),
+        damage_to_pokemon_one=t.damage_to_pokemon_one,
+        damage_to_pokemon_two=t.damage_to_pokemon_two,
+        battle_over=t.battle_over,
+    )
+
+
+def _get_battle_or_404(battle_id: str) -> BattleHistory:
+    battle = BattleHistory.objects(id=battle_id).select_related().first()
+    if not battle:
+        raise HTTPException(status_code=404, detail="Battle not found")
+    return battle
+
+
+@app.get("/battles", response_model=List[BattleSummary])
+async def list_battles(
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+):
+    battles = (
+        BattleHistory.objects()
+        .order_by("-started_at")
+        .select_related()
+        .skip(offset)
+        .limit(limit)
+    )
+    return [_battle_summary(b) for b in battles]
+
+
+@app.get("/battles/{battle_id}", response_model=BattleDetail)
+async def get_battle(battle_id: str):
+    battle = _get_battle_or_404(battle_id)
+    turns = [
+        _turn_response(t)
+        for t in BattleTurn.objects(battle=battle)
+        .select_related()
+        .order_by("turn_number")
+    ]
+    return BattleDetail(**_battle_summary(battle).model_dump(), turns=turns)
+
+
+@app.get("/battles/{battle_id}/stream")
+async def stream_battle(battle_id: str):
+    async def event_generator():
+        # Wait for the battle to finish computing (up to 60 s)
+        deadline = asyncio.get_event_loop().time() + 60
+        while True:
+            battle = BattleHistory.objects(id=battle_id).first()
+            if not battle:
+                yield f"event: error\ndata: {json.dumps({'detail': 'Battle not found'})}\n\n"
+                return
+            if battle.status == "completed":
+                break
+            if asyncio.get_event_loop().time() > deadline:
+                yield f"event: error\ndata: {json.dumps({'detail': 'Battle timed out'})}\n\n"
+                return
+            try:
+                await asyncio.sleep(0.5)
+            except asyncio.CancelledError:
+                return
+
+        turns = (
+            BattleTurn.objects(battle=battle).select_related().order_by("turn_number")
+        )
+        for turn in turns:
+            data = json.dumps(
+                {
+                    "turn_number": turn.turn_number,
+                    "first_attacker_id": str(turn.first_attacker.id),
+                    "damage_to_pokemon_one": turn.damage_to_pokemon_one,
+                    "damage_to_pokemon_two": turn.damage_to_pokemon_two,
+                    "battle_over": turn.battle_over,
+                }
+            )
+            try:
+                yield f"data: {data}\n\n"
+                await asyncio.sleep(1.5)
+            except asyncio.CancelledError:
+                return
+
+        yield "event: done\ndata: {}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 # =============================================================================
