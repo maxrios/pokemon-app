@@ -31,8 +31,11 @@ def _type_multiplier(attacker_types: list[str], defender_types: list[str]) -> fl
 
 
 def _damage(attacker: Pokemon, defender: Pokemon) -> int:
-    raw = attacker.attack - defender.defense + random.randint(1, 10)
-    return max(1, int(raw * _type_multiplier(attacker.types, defender.types)))
+    physical = attacker.attack - defender.defense
+    special = attacker.special_attack - defender.special_defense
+    raw = (special if special > physical else physical) + random.randint(1, 10)
+    base = max(1, raw)
+    return int(base * _type_multiplier(attacker.types, defender.types))
 
 
 def _winner_from_hp_replay(battle: BattleHistory) -> Pokemon:
