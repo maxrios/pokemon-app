@@ -368,9 +368,9 @@ async def list_battles(
     battles = (
         BattleHistory.objects()
         .order_by("-started_at")
-        .select_related()
         .skip(offset)
         .limit(limit)
+        .select_related()
     )
     return [_battle_summary(b) for b in battles]
 
