@@ -6,8 +6,8 @@ from typing import List
 from pydantic import BaseModel
 from mongoengine.errors import NotUniqueError
 
-from database import initialize_database, close_database_connection
-from models import Ownership
+from database import get_redis_client, initialize_database, close_database_connection
+from models import BattleHistory, Ownership
 from models import Pokemon as PokemonDoc
 from models import User
 
@@ -52,6 +52,16 @@ class CollectionEntry(BaseModel):
     ownership_id: str
     caught_at: str
     pokemon: PokemonResponse
+
+
+class BattleRequest(BaseModel):
+    user_id: str
+    pokemon_one_id: str
+    pokemon_two_id: str
+
+
+class BattleResponse(BaseModel):
+    battle_id: str
 
 
 # =============================================================================
@@ -221,6 +231,71 @@ async def release_pokemon(user_id: str, pokemon_id: int):
     deleted = Ownership.objects(user=user, pokemon=pokemon).delete()
     if not deleted:
         raise HTTPException(status_code=404, detail="Pokemon not in collection")
+
+
+# =============================================================================
+# Battle Endpoints
+# =============================================================================
+
+BATTLE_QUEUE_KEY = "battle_queue"
+
+
+def _get_owned_pokemon_or_403(user: User, pokemon_mongo_id: str) -> PokemonDoc:
+    """Return the Pokemon if the user owns it, else raise 403."""
+    pokemon = PokemonDoc.objects(id=pokemon_mongo_id).first()
+    if not pokemon:
+        raise HTTPException(
+            status_code=404, detail=f"Pokemon {pokemon_mongo_id} not found"
+        )
+    owned = Ownership.objects(user=user, pokemon=pokemon).first()
+    if not owned:
+        raise HTTPException(
+            status_code=403, detail=f"You do not own pokemon {pokemon_mongo_id}"
+        )
+    return pokemon
+
+
+@app.post("/battles", response_model=BattleResponse, status_code=202)
+async def initiate_battle(body: BattleRequest):
+    redis = get_redis_client()
+    if redis is None:
+        raise HTTPException(status_code=503, detail="Battle queue unavailable")
+
+    user = _get_user_or_404(body.user_id)
+    pokemon_one = _get_owned_pokemon_or_403(user, body.pokemon_one_id)
+    pokemon_two = _get_owned_pokemon_or_403(user, body.pokemon_two_id)
+
+    if pokemon_one.id == pokemon_two.id:
+        raise HTTPException(status_code=422, detail="A pokemon cannot battle itself")
+
+    # Idempotency: return existing pending/in_progress battle for the same pair
+    existing = (
+        BattleHistory.objects(
+            trainer=user,
+            status__in=["pending", "in_progress"],
+        )
+        .filter(
+            __raw__={
+                "$or": [
+                    {"pokemon_one": pokemon_one.id, "pokemon_two": pokemon_two.id},
+                    {"pokemon_one": pokemon_two.id, "pokemon_two": pokemon_one.id},
+                ]
+            }
+        )
+        .first()
+    )
+    if existing:
+        return BattleResponse(battle_id=str(existing.id))
+
+    battle = BattleHistory(
+        trainer=user,
+        pokemon_one=pokemon_one,
+        pokemon_two=pokemon_two,
+    ).save()
+
+    redis.rpush(BATTLE_QUEUE_KEY, str(battle.id))
+
+    return BattleResponse(battle_id=str(battle.id))
 
 
 # =============================================================================
