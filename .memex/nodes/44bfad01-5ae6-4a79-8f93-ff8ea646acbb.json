@@ -1,0 +1,23 @@
+{
+  "id": "44bfad01-5ae6-4a79-8f93-ff8ea646acbb",
+  "parent_ids": [
+    "b47b43a4-f184-43e3-b9ad-a1df7edc4681"
+  ],
+  "git_ref": "feat/sticky-navbar (70f72de3)",
+  "created_at": "2026-05-04T22:25:24.082828Z",
+  "updated_at": "2026-05-04T22:25:38.577740Z",
+  "summary": {
+    "goal": "Make the navbar sticky so it remains visible while scrolling",
+    "decisions": [
+      "added sticky top-0 z-50 to the nav element; z-50 ensures it layers above page content like pokemon cards and dialogs"
+    ],
+    "rejected_approaches": [],
+    "open_threads": [],
+    "key_artifacts": [
+      "frontend/src/components/NavBar.tsx"
+    ]
+  },
+  "raw_transcript_ref": null,
+  "tags": [],
+  "status": "Resolved"
+}

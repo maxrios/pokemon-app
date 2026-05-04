@@ -12,7 +12,7 @@ export function NavBar() {
   const pathname = usePathname()
 
   return (
-    <nav className="flex items-center gap-1 border-b border-pc-border bg-pc-bg px-4 py-2">
+    <nav className="sticky top-0 z-50 flex items-center gap-1 border-b border-pc-border bg-pc-bg px-4 py-2">
       {links.map(({ href, label }) => {
         const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
         return (
