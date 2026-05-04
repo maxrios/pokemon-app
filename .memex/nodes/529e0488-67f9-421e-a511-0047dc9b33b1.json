@@ -1,0 +1,25 @@
+{
+  "id": "529e0488-67f9-421e-a511-0047dc9b33b1",
+  "parent_ids": [
+    "094922d1-6ef9-47d7-8aec-d5460d563c73"
+  ],
+  "git_ref": "feat/battle-service (8c12f986)",
+  "created_at": "2026-05-04T21:21:37.584816Z",
+  "updated_at": "2026-05-04T21:24:52.932078Z",
+  "summary": {
+    "goal": "Implement battle computation service with turn loop, type effectiveness, and fault-tolerant queue processing (closes #13)",
+    "decisions": [
+      "battle service runs as an asyncio background task inside the FastAPI process rather than a separate container — avoids docker-compose changes while still demonstrating queue-based separation of concerns",
+      "used asyncio.to_thread for _process_battle so blocking MongoEngine calls don't freeze the event loop during computation",
+      "lock is refreshed on every turn (not just at pickup) so a long battle doesn't drop the lock mid-computation and get claimed by a second worker"
+    ],
+    "rejected_approaches": [],
+    "open_threads": [],
+    "key_artifacts": [
+      "backend/battle_service.py"
+    ]
+  },
+  "raw_transcript_ref": null,
+  "tags": [],
+  "status": "Resolved"
+}

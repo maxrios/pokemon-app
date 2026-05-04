@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +7,7 @@ from typing import List
 from pydantic import BaseModel
 from mongoengine.errors import NotUniqueError
 
+from battle_service import run_battle_worker
 from database import get_redis_client, initialize_database, close_database_connection
 from models import BattleHistory, Ownership
 from models import Pokemon as PokemonDoc
@@ -74,9 +76,11 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown events."""
     # Startup
     initialize_database()
+    worker_task = asyncio.create_task(run_battle_worker())
     logger.info("Application startup complete")
     yield
     # Shutdown
+    worker_task.cancel()
     close_database_connection()
     logger.info("Application shutdown complete")
 
