@@ -354,7 +354,7 @@ def _turn_response(t: BattleTurn) -> BattleTurnResponse:
 
 
 def _get_battle_or_404(battle_id: str) -> BattleHistory:
-    battle = BattleHistory.objects(id=battle_id).select_related().first()
+    battle = BattleHistory.objects(id=battle_id).first()
     if not battle:
         raise HTTPException(status_code=404, detail="Battle not found")
     return battle
@@ -380,9 +380,7 @@ async def get_battle(battle_id: str):
     battle = _get_battle_or_404(battle_id)
     turns = [
         _turn_response(t)
-        for t in BattleTurn.objects(battle=battle)
-        .select_related()
-        .order_by("turn_number")
+        for t in BattleTurn.objects(battle=battle).order_by("turn_number")
     ]
     return BattleDetail(**_battle_summary(battle).model_dump(), turns=turns)
 
@@ -407,9 +405,7 @@ async def stream_battle(battle_id: str):
             except asyncio.CancelledError:
                 return
 
-        turns = (
-            BattleTurn.objects(battle=battle).select_related().order_by("turn_number")
-        )
+        turns = BattleTurn.objects(battle=battle).order_by("turn_number")
         for turn in turns:
             data = json.dumps(
                 {
