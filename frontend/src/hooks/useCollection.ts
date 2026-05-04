@@ -7,20 +7,25 @@ import { apiDelete, apiGet, apiPost } from '@/lib/api'
 type CollectionEntry = {
   caught_at: string
   ownership_id: string
-  pokemon: { pokemon_id: number }
+  pokemon: { id: string; pokemon_id: number }
 }
 
 export function useCollection(userId: null | string): {
   catchPokemon: (pokemonId: number) => Promise<void>
   ownedIds: Set<number>
+  ownedMongoIds: Map<number, string>
   releasePokemon: (pokemonId: number) => Promise<void>
 } {
   const [ownedIds, setOwnedIds] = useState<Set<number>>(new Set())
+  const [ownedMongoIds, setOwnedMongoIds] = useState<Map<number, string>>(new Map())
 
   useEffect(() => {
     if (!userId) return
     apiGet<CollectionEntry[]>(`/users/${userId}/collection`)
-      .then(entries => setOwnedIds(new Set(entries.map(e => e.pokemon.pokemon_id))))
+      .then(entries => {
+        setOwnedIds(new Set(entries.map(e => e.pokemon.pokemon_id)))
+        setOwnedMongoIds(new Map(entries.map(e => [e.pokemon.pokemon_id, e.pokemon.id])))
+      })
       .catch(console.error)
   }, [userId])
 
@@ -46,5 +51,5 @@ export function useCollection(userId: null | string): {
     [userId]
   )
 
-  return { catchPokemon, ownedIds, releasePokemon }
+  return { catchPokemon, ownedIds, ownedMongoIds, releasePokemon }
 }

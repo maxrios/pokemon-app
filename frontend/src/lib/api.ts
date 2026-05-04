@@ -26,3 +26,15 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
 export async function getBattles(limit = 50): Promise<BattleSummary[]> {
   return apiGet<BattleSummary[]>(`/battles?limit=${limit}`)
 }
+
+export async function initiateBattle(
+  userId: string,
+  pokemonOneId: string,
+  pokemonTwoId: string
+): Promise<{ battle_id: string }> {
+  return apiPost<{ battle_id: string }>('/battles', {
+    user_id: userId,
+    pokemon_one_id: pokemonOneId,
+    pokemon_two_id: pokemonTwoId,
+  })
+}
